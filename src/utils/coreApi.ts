@@ -1,5 +1,6 @@
-const InsightOutApiKey = "sk_2ebebd612f54d0a33d15986a274de447.e13527c0fcd5a753b5ed2c4013294d1b8f040b241c766e119132011759cb644671350037475f27ac6c445d315d95601ee2af87bdc2bf844533d43386c11780cc8824f9d766eee8b6b1a312c1804f56c7fb0c4ad00bfaeac1e6d0c5b74e3095726b9b95f9235e4fb99ad095e64d4ca92be27aeb80c6236086e7ee6a41457c39c5bef28e247dc468e381dd1a5146ce6087433e9323fed875d5f3d5ba5bbab3035592bdf432c76949f4012292d17fc1d2a83e294662123bda626dcc155318c89be94431de2e54cafcc2c8a3cfee039b358404eb71a45513da79ab205cd8f047ba8d5c3f2601c2964a00287f441ed5f7f4b84a9272dbbfedc8bd2e5bb2e93eaedb9c13d45726f223ba3e790a50d9eee0dbccdcde3f9ccbcf7c31389450e0ebba08543e0088514f1bf6960c3e39e8de0c2cad3ad4b343050b85108c7c87e4c30f4fd3d6b90e348274ee899958adecc86b21653631511dcb3662108877a0dd4bf7ab466dc3e58762637fba80bc993a05d231e07c7affdadd114e4fd2b69ace6536f032a2bc148305c6f7813d922a2937f5c6fb8583959d20057b7bf2eff55723de1345dd3c7392a78ac35ed37d2841d84e078b9b7a51e7b9fd03ca0368053fa781b91edd043ffbfc9e696dde23b9ac3ef90154cfed2eb1d476055daaf52bbf93d8824e42d0847c8e6261d89c2ed2c3b69ef64495ff97f3f1fa36465bdd14a346be5909024e43ae69577d03a9ff8eff8d2f1608";
+const InsightOutAPIKey = "sk_bc0c7f89259dec2038780a1cf0a71ca2.5e4a368e0874f480f6c2657fe181fc8a909674266bfb632ae3defa4ac3579e94f83cc248a124a147dfaa55d85681b35705aca939b2c6a06491efb469ca7f359903fc29897d3fd87ae1bfdd865c1ff0da739f46d2ff0c86972441e150501e5e7b5e702384db9749117960b3b82e6e01dc864a74bf28646b7d4356ba4803251d9d07172f7ceab5c25440e081e6321561b544196ccdff0351fa020bb9d937c7788ad56daf24832b24cfd9be7463cb66aaf7f091d0d828f3bd5fb6f0d564b650738cd1b174bc777b5f093bff967f192d3aedb62dc20c70257d70214f6521c0e0368178dae3dc1abfabaa7bd419bf19320ad0b85b4ed48dfa12ccb2a1de6e7d22c6440ba55905fe036f5573fc39ef0f1438155dd7cb4fa32e460072114ddbf582870610f8b31c7007066e143f7fb4bd4927639a488123947defdba6c722f5fa01987a238d678c4ab984371a270f6c03203c8e52f04b7723e2cc7637d77819bcf39abed998a9dc15b7360c96414bcbcebcf38010ef4ed5d35c0c98bc7707d98673e064cc68110f454f785cc823cda98ac46743139e8767f29df59404a89ed093816069301aa1150c9e1a5ed02e98da9bb4ba0dd7d32670e95942ad8d3455ff1b68f4c9fadea63dc8f6c9060189a7f8a222a3609a2edc15eb1963242431cc7e9b850caacc81f141674dbb77a60dbb21715e8ac3eb2b9f0f2f8e3643e2f86eb94e8fa8bd9c6ed4bf20fe71829f596eda281bc5a9";
 const onLocal = false;
+const mainUrl = "https://core-api-v2-e4pd.onrender.com";
 var metadata: {
     baseUrl: string;
     version: string;
@@ -56,7 +57,7 @@ class ApiClient {
 
     public async connect(apiKey: string) {
         try {
-            const res = await fetch("https://core-api-v2.onrender.com/decrypt-api-key", {
+            const res = await fetch(`${mainUrl}/decrypt-api-key`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -346,7 +347,7 @@ class ApiClient {
     }
 
     private async nonAuthFetch(url: string, options?: RequestInit): Promise<any> {
-        const res = await fetch(`${onLocal ? "http://localhost:10000" : metadata.baseUrl}/api/${metadata.version}${url}`, {
+        const res = await fetch(`${onLocal ? "http://localhost:10000" : mainUrl}/api/${metadata.version}${url}`, {
             ...options,
             headers: {
                 ...(options?.headers || {}),
@@ -360,7 +361,7 @@ class ApiClient {
         let token = this.getAccessToken();
 
         const doFetch = async (accessToken: string) =>
-            fetch(`${onLocal ? "http://localhost:10000" : metadata.baseUrl}/api/${metadata.version}${url}`, {
+            fetch(`${onLocal ? "http://localhost:10000" : mainUrl}/api/${metadata.version}${url}`, {
                 ...options,
                 headers: {
                     ...(options?.headers || {}),
@@ -432,7 +433,7 @@ class ApiClient {
         const refreshToken = this.getRefreshToken();
         if (!refreshToken) throw new Error('No refresh token available');
 
-        const res = await fetch(`${metadata.baseUrl}/api/${metadata.version}/auths/refresh-token`, {
+        const res = await fetch(`${mainUrl}/api/${metadata.version}/auths/refresh-token`, {
             method: 'POST',
             headers: { Authorization: `Bearer ${refreshToken}` },
         });
@@ -695,7 +696,7 @@ class ApiClient {
         formData.append("key", safeKey);
         formData.append("file", file);
 
-        const res = await fetch(`${metadata.baseUrl}/api/${metadata.version}/storages/upload`, {
+        const res = await fetch(`${mainUrl}/api/${metadata.version}/storages/upload`, {
             method: "POST",
             headers: {
                 Authorization: `Bearer ${this.getAccessToken()}`
@@ -755,7 +756,7 @@ class ApiClient {
 }
 
 const coreApi = new ApiClient();
-await coreApi.connect(InsightOutApiKey);
+await coreApi.connect(InsightOutAPIKey);
 export default coreApi;
 
 
